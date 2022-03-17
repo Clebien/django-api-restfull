@@ -2,15 +2,21 @@ from rest_framework.viewsets import ModelViewSet
 from django.views.decorators.csrf import csrf_exempt
 
 from endpoint.models import Category, Product, Article
-from endpoint.serializers import CategorySerializer, ProductSerializer, ArticleSerializer
+from endpoint.serializers import CategoryListSerializer, CategoryDetailSerializer, ProductSerializer, ArticleSerializer
 
 csrf_exempt
 class CategoryViewset(ModelViewSet):
 
-    serializer_class = CategorySerializer
+    serializer_class = CategoryListSerializer
+    detail_serializer_class = CategoryDetailSerializer
 
     def get_queryset(self):
         return Category.objects.filter(active=True)
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return self.detail_serializer_class
+        return super().get_serializer_class()
 
 
 class ProductViewset(ModelViewSet):
@@ -23,6 +29,7 @@ class ProductViewset(ModelViewSet):
         if category_id is not None:
             queryset = queryset.filter(category_id=category_id)
         return queryset
+
 
 class ArticleViewset(ModelViewSet):
 
